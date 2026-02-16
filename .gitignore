@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Data
+data/
+audioset/
+audioset_16k/
+mit_rirs/
+fma/
+
+# Models and artifacts
+my_custom_model/
+*.onnx
+*.tflite
+*.npy
+*.pt
+
+# External repos
+piper-sample-generator/
+openwakeword/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

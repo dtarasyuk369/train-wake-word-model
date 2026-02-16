@@ -1,0 +1,49 @@
+model_name: "lumos"
+
+target_phrase:
+  - "lumos"
+
+custom_negative_phrases: []
+
+n_samples: 5000
+n_samples_val: 5000
+
+tts_batch_size: 50
+augmentation_batch_size: 16
+
+piper_sample_generator_path: "./piper-sample-generator"
+piper_model_path: "./piper-sample-generator/models/en_US-libritts_r-medium.pt"
+
+output_dir: "./my_custom_model"
+
+rir_paths:
+  - "./data/mit_rirs"
+
+background_paths:
+  - "./data/audioset_16k"
+  # - "./data/fma"  # раскомментировать после: python download_data.py --include-fma
+
+background_paths_duplication_rate:
+  - 1
+
+false_positive_validation_data_path: "./data/validation_set_features.npy"
+
+augmentation_rounds: 1
+
+feature_data_files:
+  ACAV100M_sample: "./data/openwakeword_features_ACAV100M_2000_hrs_16bit.npy"
+
+batch_n_per_class:
+  ACAV100M_sample: 1024
+  adversarial_negative: 50
+  positive: 50
+
+model_type: "dnn"
+layer_size: 32
+
+steps: 10000
+max_negative_weight: 1500
+target_false_positives_per_hour: 0.2
+
+target_accuracy: 0.8
+target_recall: 0.6
