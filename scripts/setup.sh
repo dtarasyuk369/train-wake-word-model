@@ -5,7 +5,39 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
+# --- Парсинг аргументов ---
+NO_VENV=false
 PYTHON_CMD="${PYTHON_CMD:-python3.11}"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --no-venv)
+            NO_VENV=true
+            shift
+            ;;
+        --python)
+            PYTHON_CMD="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Использование: $0 [опции]"
+            echo ""
+            echo "Опции:"
+            echo "  --no-venv       Не создавать и не активировать виртуальное окружение"
+            echo "  --python CMD    Использовать указанную команду Python (по умолчанию: python3.11)"
+            echo "  -h, --help      Показать эту справку"
+            echo ""
+            echo "Переменные окружения:"
+            echo "  PYTHON_CMD      Команда Python (альтернатива --python)"
+            exit 0
+            ;;
+        *)
+            echo "Неизвестная опция: $1"
+            echo "Используйте --help для справки"
+            exit 1
+            ;;
+    esac
+done
 
 if ! command -v "$PYTHON_CMD" &>/dev/null; then
     echo "ERROR: $PYTHON_CMD не найден. Установите Python 3.11 или задайте PYTHON_CMD."
@@ -18,11 +50,16 @@ if [[ "$PY_VERSION" != "3.11" ]]; then
 fi
 
 # --- Создание виртуального окружения ---
-if [ ! -d "venv" ]; then
-    echo ">>> Создание venv..."
-    "$PYTHON_CMD" -m venv venv
+if [ "$NO_VENV" = false ]; then
+    if [ ! -d "venv" ]; then
+        echo ">>> Создание venv..."
+        "$PYTHON_CMD" -m venv venv
+    fi
+    source venv/bin/activate
+    echo ">>> Виртуальное окружение активировано"
+else
+    echo ">>> Режим --no-venv: используется системный Python"
 fi
-source venv/bin/activate
 
 echo ">>> Обновление pip..."
 pip install --upgrade pip
@@ -63,4 +100,8 @@ done
 
 echo ""
 echo "=== Установка завершена ==="
-echo "Активируйте окружение: source venv/bin/activate"
+if [ "$NO_VENV" = false ]; then
+    echo "Активируйте окружение: source venv/bin/activate"
+else
+    echo "Используется системный Python (режим --no-venv)"
+fi

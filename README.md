@@ -41,20 +41,34 @@
 git clone https://github.com/YOUR_USERNAME/train-wake-word-model.git
 cd train-wake-word-model
 
-# Создайте виртуальное окружение
+# Автоматическая установка (рекомендуется)
+bash scripts/setup.sh
+source venv/bin/activate
+
+# Или ручная установка:
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 # или
 venv\Scripts\activate  # Windows
 
-# Установите зависимости
 pip install -r requirements.txt
+pip install piper-phonemize -f https://k2-fsa.github.io/icefall/piper_phonemize.html
+```
 
-# Клонируйте Piper Sample Generator (для генерации TTS)
-git clone https://github.com/rhasspy/piper-sample-generator.git
-cd piper-sample-generator
-pip install -e .
-cd ..
+#### Опции setup.sh
+
+```bash
+# Справка
+bash scripts/setup.sh --help
+
+# Использование системного Python (без venv, для Docker/серверов/Colab)
+bash scripts/setup.sh --no-venv
+
+# Указать конкретную версию Python
+bash scripts/setup.sh --python python3.10
+
+# Комбинация опций
+bash scripts/setup.sh --no-venv --python python3
 ```
 
 ## 📚 Быстрый старт
@@ -62,10 +76,15 @@ cd ..
 ### 1. Скачайте данные
 
 ```bash
-# Базовые данные (MIT RIRs + AudioSet)
+# Используя скрипт (рекомендуется)
+bash scripts/download_data.sh
+
+# Или напрямую через Python
 python download_data.py
 
 # Опционально: добавить музыкальный фон (~7 ГБ)
+INCLUDE_FMA=true bash scripts/download_data.sh
+# или
 python download_data.py --include-fma --fma-hours 2
 ```
 
@@ -86,7 +105,13 @@ steps: 10000     # Шаги обучения
 ### 3. Обучите модель
 
 ```bash
-# Полный пайплайн (генерация → аугментация → обучение)
+# Используя скрипт (автоматический пайплайн)
+bash scripts/train.sh
+
+# С кастомной конфигурацией
+bash scripts/train.sh --config config/my_model.yaml
+
+# Или напрямую через Python (ручной контроль)
 python train.py \
   --training_config config/default.yaml \
   --generate_clips \
@@ -94,7 +119,7 @@ python train.py \
   --train_model
 ```
 
-Или пошагово:
+**Пошаговый режим:**
 
 ```bash
 # Шаг 1: Генерация синтетических образцов
@@ -198,6 +223,64 @@ if detector.detect(audio_chunk):
 **Больше `max_negative_weight`** → Меньше ложных срабатываний, но может пропускать настоящие
 
 **Меньше `layer_size`** → Быстрее inference, но может быть менее точным
+
+## 🔧 Использование скриптов
+
+Все скрипты поддерживают флаг `--no-venv` для использования в контейнерах, CI/CD или Google Colab.
+
+### setup.sh - Установка окружения
+
+```bash
+# Обычная установка с venv
+bash scripts/setup.sh
+
+# Для Docker/Colab (без venv)
+bash scripts/setup.sh --no-venv
+
+# С конкретной версией Python
+bash scripts/setup.sh --python python3.10
+
+# Справка
+bash scripts/setup.sh --help
+```
+
+### download_data.sh - Скачивание данных
+
+```bash
+# Базовое использование
+bash scripts/download_data.sh
+
+# С FMA датасетом (~7 ГБ музыки)
+INCLUDE_FMA=true bash scripts/download_data.sh
+
+# Для Colab (без venv)
+bash scripts/download_data.sh --no-venv
+
+# Кастомная директория
+bash scripts/download_data.sh --data-dir /path/to/data
+
+# Справка
+bash scripts/download_data.sh --help
+```
+
+### train.sh - Полный цикл обучения
+
+```bash
+# Обучение с конфигом по умолчанию
+bash scripts/train.sh
+
+# С кастомной конфигурацией
+bash scripts/train.sh --config config/my_model.yaml
+
+# Для Colab
+bash scripts/train.sh --no-venv --config config/colab_config.yaml
+
+# Обратная совместимость (старый синтаксис)
+bash scripts/train.sh config/my_model.yaml
+
+# Справка
+bash scripts/train.sh --help
+```
 
 ## 📁 Структура проекта
 

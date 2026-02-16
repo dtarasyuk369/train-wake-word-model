@@ -5,14 +5,65 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
-CONFIG="${1:-config/default.yaml}"
+# --- Парсинг аргументов ---
+NO_VENV=false
+CONFIG="config/default.yaml"
 
-if [ ! -f "venv/bin/activate" ]; then
-    echo "ERROR: venv не найден. Сначала запустите: bash scripts/setup.sh"
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --no-venv)
+            NO_VENV=true
+            shift
+            ;;
+        --config)
+            CONFIG="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Использование: $0 [опции]"
+            echo ""
+            echo "Опции:"
+            echo "  --no-venv         Не активировать виртуальное окружение"
+            echo "  --config FILE     Путь к конфигурации (по умолчанию: config/default.yaml)"
+            echo "  -h, --help        Показать эту справку"
+            echo ""
+            echo "Примеры:"
+            echo "  bash scripts/train.sh"
+            echo "  bash scripts/train.sh --config config/my_model.yaml"
+            echo "  bash scripts/train.sh --no-venv --config config/colab_config.yaml"
+            exit 0
+            ;;
+        *)
+            # Если аргумент без флага - считаем его путём к конфигу (обратная совместимость)
+            if [ -f "$1" ]; then
+                CONFIG="$1"
+                shift
+            else
+                echo "Неизвестная опция или файл не найден: $1"
+                echo "Используйте --help для справки"
+                exit 1
+            fi
+            ;;
+    esac
+done
+
+# --- Проверка конфига ---
+if [ ! -f "$CONFIG" ]; then
+    echo "ERROR: Конфигурация не найдена: $CONFIG"
     exit 1
 fi
 
-source venv/bin/activate
+# --- Активация venv если нужно ---
+if [ "$NO_VENV" = false ]; then
+    if [ ! -f "venv/bin/activate" ]; then
+        echo "ERROR: venv не найден. Сначала запустите: bash scripts/setup.sh"
+        exit 1
+    fi
+    source venv/bin/activate
+    echo ">>> Виртуальное окружение активировано"
+else
+    echo ">>> Режим --no-venv: используется системный Python"
+fi
 
 echo ">>> Конфигурация: $CONFIG"
 echo ""
