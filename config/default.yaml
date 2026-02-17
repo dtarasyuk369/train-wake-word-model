@@ -2,14 +2,20 @@ model_name: "lumos"
 
 target_phrase:
   - "lumos"
+  - "lumus"
+  - "lymos"
+  - "luminous"
+  - "Illuminate"
+  - "lumen"
 
+custom_positive_phrases: []
 custom_negative_phrases: []
 
-n_samples: 5000
-n_samples_val: 5000
+n_samples: 20000
+n_samples_val: 2000
 
-tts_batch_size: 50
-augmentation_batch_size: 16
+tts_batch_size: 100
+augmentation_batch_size: 32
 
 piper_sample_generator_path: "./piper-sample-generator"
 piper_model_path: "./piper-sample-generator/models/en_US-libritts_r-medium.pt"
@@ -35,15 +41,15 @@ feature_data_files:
 
 batch_n_per_class:
   ACAV100M_sample: 1024
-  adversarial_negative: 50
-  positive: 50
+  adversarial_negative: 128
+  positive: 128
 
 model_type: "dnn"
-layer_size: 32
+layer_size: 64
 
-steps: 10000
-max_negative_weight: 1500
+steps: 15000
+max_negative_weight: 2000
 target_false_positives_per_hour: 0.2
 
-target_accuracy: 0.8
-target_recall: 0.6
+target_accuracy: 0.90
+target_recall: 0.85
